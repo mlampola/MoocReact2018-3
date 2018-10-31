@@ -25,15 +25,26 @@ let persons = [
     }
 ]
 
-app.get('/api/persons', (req, res) => {
-    res.json(persons)
-})
-
 app.get('/info', (req, res) => {
     // const info = `<p>puhelinluettelossa on ${persons.length} henkilön tiedot</p><p>${moment().format('ddd MMM DD YYYY HH:mm:ssZ')}</p>`
     const info = `<p>puhelinluettelossa on ${persons.length} henkilön tiedot</p><p>${new Date()}</p>`
     console.log(info)
     res.send(info)
+  })
+
+  app.get('/api/persons', (req, res) => {
+    res.json(persons)
+})
+
+  app.get('/api/persons/:id', (req, res) => {
+    const id = Number(req.params.id)
+    const person = persons.find(p => p.id === id)
+  
+    if (person) {
+      res.json(person)
+    } else {
+      res.status(404).end()
+    }
   })
 
 const port = 3001
