@@ -1,6 +1,8 @@
 const express = require('express')
 const app = express()
-// const moment = require('moment') // npm install moment --save
+const bodyParser = require('body-parser')
+
+app.use(bodyParser.json())
 
 let persons = [
     {
@@ -25,8 +27,13 @@ let persons = [
     }
 ]
 
+const MAX_ID = 100000
+
+const getRandomInt = (max) => {
+    return Math.floor(Math.random() * Math.floor(max)) + 100;
+  }
+  
 app.get('/info', (req, res) => {
-    // const info = `<p>puhelinluettelossa on ${persons.length} henkilön tiedot</p><p>${moment().format('ddd MMM DD YYYY HH:mm:ssZ')}</p>`
     const info = `<p>puhelinluettelossa on ${persons.length} henkilön tiedot</p><p>${new Date()}</p>`
     console.log(info)
     res.send(info)
@@ -52,6 +59,15 @@ app.get('/info', (req, res) => {
     persons = persons.filter(p => p.id !== id)
   
     res.status(204).end()
+  })
+
+  app.post('/api/persons', (req, res) => {
+    const person = req.body
+    person.id = getRandomInt(MAX_ID)
+    console.log(person)
+    persons = persons.concat(person)
+    console.log(persons)
+    res.json(person)
   })
 
 const port = 3001
