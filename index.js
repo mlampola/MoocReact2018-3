@@ -5,7 +5,9 @@ const morgan = require('morgan')
 const app = express()
 
 app.use(bodyParser.json())
-app.use(morgan('tiny'))
+app.use(morgan(':method :url :body :status :res[content-length] - :response-time ms'))
+
+morgan.token('body', function (req, res) { return JSON.stringify(req.body) })
 
 let persons = [
     {
@@ -67,8 +69,7 @@ app.delete('/api/persons/:id', (req, res) => {
 app.post('/api/persons', (req, res) => {
     const person = req.body
     person.id = getRandomInt(MAX_ID)
-    console.log(person)
-
+ 
     if (person.name === undefined) {
         return res.status(400).json({ error: 'name missing' })
     }
