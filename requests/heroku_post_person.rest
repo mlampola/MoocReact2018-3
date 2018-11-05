@@ -1,0 +1,7 @@
+POST https://mlampola-puhelinluettelo.herokuapp.com/api/persons
+content-type: application/json
+
+{
+    "name": "Markus Lampola",
+    "number": "040-9999999"
+}
