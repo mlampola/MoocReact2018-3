@@ -2,6 +2,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const morgan = require('morgan')
 const cors = require('cors')
+const Person = require('./models/person')
 
 const app = express()
 
@@ -41,6 +42,14 @@ const getRandomInt = (max) => {
     return Math.floor(Math.random() * Math.floor(max)) + 100;
 }
 
+const formatPerson = (person) => {
+    return {
+        name: person.name,
+        number: person.number,
+        id: person._id
+    }
+}
+
 app.get('/info', (req, res) => {
     const info = `<p>puhelinluettelossa on ${persons.length} henkilön tiedot</p><p>${new Date()}</p>`
     console.log(info)
@@ -48,7 +57,16 @@ app.get('/info', (req, res) => {
 })
 
 app.get('/api/persons', (req, res) => {
-    res.json(persons)
+    Person
+        .find({})
+        .then(persons => {
+            res.json(persons.map(formatPerson))
+         })
+        .catch(error => {
+            console.log(error)
+            res.status(404).end()
+        })
+      
 })
 
 app.get('/api/persons/:id', (req, res) => {
@@ -72,7 +90,7 @@ app.delete('/api/persons/:id', (req, res) => {
 app.post('/api/persons', (req, res) => {
     const person = req.body
     person.id = getRandomInt(MAX_ID)
- 
+
     if (person.name === undefined) {
         return res.status(400).json({ error: 'name missing' })
     }
