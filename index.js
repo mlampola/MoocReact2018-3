@@ -42,14 +42,6 @@ const getRandomInt = (max) => {
     return Math.floor(Math.random() * Math.floor(max)) + 100;
 }
 
-const formatPerson = (person) => {
-    return {
-        name: person.name,
-        number: person.number,
-        id: person._id
-    }
-}
-
 app.get('/info', (req, res) => {
     const info = `<p>puhelinluettelossa on ${persons.length} henkilön tiedot</p><p>${new Date()}</p>`
     console.log(info)
@@ -60,7 +52,7 @@ app.get('/api/persons', (req, res) => {
     Person
         .find({})
         .then(persons => {
-            res.json(persons.map(formatPerson))
+            res.json(persons.map(Person.format))
          })
         .catch(error => {
             console.log(error)
