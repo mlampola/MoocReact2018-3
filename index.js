@@ -57,8 +57,7 @@ app.get('/api/persons', (req, res) => {
         .catch(error => {
             console.log(error)
             res.status(404).end()
-        })
-      
+        })    
 })
 
 app.get('/api/persons/:id', (req, res) => {
@@ -73,10 +72,17 @@ app.get('/api/persons/:id', (req, res) => {
 })
 
 app.delete('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id)
-    persons = persons.filter(p => p.id !== id)
+    const id = req.params.id
 
-    res.status(204).end()
+    Person
+    .findByIdAndRemove(id)
+    .then(persons => {
+        res.status(204).end()
+    })
+    .catch(error => {
+        console.log(error)
+        res.status(404).end()
+    })
 })
 
 app.post('/api/persons', (req, res) => {
@@ -106,7 +112,6 @@ app.post('/api/persons', (req, res) => {
           response.json(Person.format(savedPerson))
         })
     
-    // persons = persons.concat(person)
     res.json(person)
 })
 
