@@ -5,7 +5,7 @@ const MONGO_PASS = process.env.MONGO_PASS
 
 const url = `mongodb://${MONGO_USER}:${MONGO_PASS}@ds253783.mlab.com:53783/persons`
 
-mongoose.connect(url)
+mongoose.connect(url, { useNewUrlParser: true })
 
 var Schema = mongoose.Schema;
 

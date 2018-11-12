@@ -13,39 +13,13 @@ app.use(express.static('build'))
 
 morgan.token('body', function (req, res) { return JSON.stringify(req.body) })
 
-let persons = [
-    {
-        "name": "Arto Hellas",
-        "number": "040-123456",
-        "id": 1
-    },
-    {
-        "name": "Martti Tienari",
-        "number": "040-123456",
-        "id": 2
-    },
-    {
-        "name": "Arto Järvinen",
-        "number": "040-123456",
-        "id": 3
-    },
-    {
-        "name": "Lea Kutvonen",
-        "number": "040-123456",
-        "id": 4
-    }
-]
-
-const MAX_ID = 100000
-
-const getRandomInt = (max) => {
-    return Math.floor(Math.random() * Math.floor(max)) + 100;
-}
-
 app.get('/info', (req, res) => {
-    const info = `<p>puhelinluettelossa on ${persons.length} henkilön tiedot</p><p>${new Date()}</p>`
-    console.log(info)
-    res.send(info)
+    Person.countDocuments({})
+    .then(count => {
+        const info = `<p>puhelinluettelossa on ${count} henkilön tiedot</p><p>${new Date()}</p>`
+        console.log(info)
+        res.send(info)
+    })
 })
 
 app.get('/api/persons', (req, res) => {
@@ -61,14 +35,15 @@ app.get('/api/persons', (req, res) => {
 })
 
 app.get('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id)
-    const person = persons.find(p => p.id === id)
-
-    if (person) {
-        res.json(person)
-    } else {
+    const id = req.params.id
+    Person.findById(id)
+    .then(savedPerson => {
+        res.json(Person.format(savedPerson))
+    })
+    .catch(error => {
+        console.log(error)
         res.status(404).end()
-    }
+    })
 })
 
 app.delete('/api/persons/:id', (req, res) => {
@@ -89,7 +64,7 @@ app.put('/api/persons/:id', (req, res) => {
     const id = req.params.id
     const body = req.body
 
-    Person.findByIdAndUpdate(id, body)
+    Person.findByIdAndUpdate(id, body, {new: true})
     .then(savedPerson => {
         res.json(Person.format(savedPerson))
     })
@@ -125,9 +100,11 @@ app.post('/api/persons', (req, res) => {
         .then(savedPerson => {
           res.json(Person.format(savedPerson))
         })
-    
-    res.json(person)
-})
+        .catch(error => {
+            console.log(error)
+            res.status(404).end()
+        })
+    })
 
 const port = process.env.PORT || 3001
 app.listen(port)
