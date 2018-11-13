@@ -15,11 +15,11 @@ morgan.token('body', function (req, res) { return JSON.stringify(req.body) })
 
 app.get('/info', (req, res) => {
     Person.countDocuments({})
-    .then(count => {
-        const info = `<p>puhelinluettelossa on ${count} henkilön tiedot</p><p>${new Date()}</p>`
-        console.log(info)
-        res.send(info)
-    })
+        .then(count => {
+            const info = `<p>puhelinluettelossa on ${count} henkilön tiedot</p><p>${new Date()}</p>`
+            console.log(info)
+            res.send(info)
+        })
 })
 
 app.get('/api/persons', (req, res) => {
@@ -27,51 +27,51 @@ app.get('/api/persons', (req, res) => {
         .find({})
         .then(persons => {
             res.json(persons.map(Person.format))
-         })
+        })
         .catch(error => {
             console.log(error)
             res.status(404).end()
-        })    
+        })
 })
 
 app.get('/api/persons/:id', (req, res) => {
     const id = req.params.id
     Person.findById(id)
-    .then(savedPerson => {
-        res.json(Person.format(savedPerson))
-    })
-    .catch(error => {
-        console.log(error)
-        res.status(404).end()
-    })
+        .then(savedPerson => {
+            res.json(Person.format(savedPerson))
+        })
+        .catch(error => {
+            console.log(error)
+            res.status(404).end()
+        })
 })
 
 app.delete('/api/persons/:id', (req, res) => {
     const id = req.params.id
 
     Person
-    .findByIdAndRemove(id)
-    .then(person => {
-        res.status(204).end()
-    })
-    .catch(error => {
-        console.log(error)
-        res.status(404).end()
-    })
+        .findByIdAndRemove(id)
+        .then(person => {
+            res.status(204).end()
+        })
+        .catch(error => {
+            console.log(error)
+            res.status(404).end()
+        })
 })
 
 app.put('/api/persons/:id', (req, res) => {
     const id = req.params.id
     const body = req.body
 
-    Person.findByIdAndUpdate(id, body, {new: true})
-    .then(savedPerson => {
-        res.json(Person.format(savedPerson))
-    })
-    .catch(error => {
-        console.log(error)
-        res.status(404).end()
-    })
+    Person.findByIdAndUpdate(id, body, { new: true })
+        .then(savedPerson => {
+            res.json(Person.format(savedPerson))
+        })
+        .catch(error => {
+            console.log(error)
+            res.status(400).end()
+        })
 })
 
 app.post('/api/persons', (req, res) => {
@@ -93,18 +93,31 @@ app.post('/api/persons', (req, res) => {
     const person = new Person({
         name: body.name,
         number: body.number,
-      })
-    
-      person
-        .save()
-        .then(savedPerson => {
-          res.json(Person.format(savedPerson))
+    })
+
+    Person
+        .find({ name: body.name })
+        .then(result => {
+            if (result.length == 0) { // Does not exist
+                person
+                    .save()
+                    .then(savedPerson => {
+                        res.json(Person.format(savedPerson))
+                    })
+                    .catch(error => {
+                        console.log(error)
+                        res.status(400).end()
+                    })
+
+            } else {
+                res.status(409).end() // Already exists
+                }
         })
         .catch(error => {
             console.log(error)
-            res.status(404).end()
+            res.status(409).end()
         })
-    })
+})
 
 const port = process.env.PORT || 3001
 app.listen(port)
